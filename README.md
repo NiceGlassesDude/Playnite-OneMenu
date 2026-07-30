@@ -16,7 +16,7 @@
 
 ---
 
-## ⚙️ How to Set Up
+## Configuration
 
 1. Open Playnite **Settings** (`Ctrl + P`) $\rightarrow$ **Add-ons** $\rightarrow$ **Extension settings** $\rightarrow$ **Generic** $\rightarrow$ **OneMenu**.
 2. Click **Add category** to create a main menu item.
@@ -27,4 +27,4 @@
    * **Filter preset:** Select which Playnite filter preset opens when clicked.
 4. *(Optional)* Click **Add sub-item** to create drop-down sub-menus inside a category.
 
-> 💡 **Note:** An item with sub-items automatically acts as an expandable group. To turn it back into a direct filter button, simply remove its sub-items!
+> **Note:** An item with sub-items automatically acts as an expandable group. To turn it back into a direct filter button, simply remove its sub-items!
