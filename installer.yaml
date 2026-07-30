@@ -1,0 +1,7 @@
+AddonId: OneMenu
+Packages:
+  - Version: 1.3.8
+    RequiredApiVersion: 6.2.0
+    PackageUrl: https://github.com/NiceGlassesDude/Playnite-OneMenu/releases/download/v1.3.8/OneMenu_1_3_8.pext
+    Changelog:
+      - Initial release.
