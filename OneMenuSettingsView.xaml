@@ -70,15 +70,38 @@
                     <Button Grid.Column="2" Content="Clear" Command="{Binding ClearIconCommand}" />
                 </Grid>
 
-                <TextBlock Text="Filter preset (applied when this item is clicked)"
+                <TextBlock Text="What happens when clicked"
                            TextWrapping="Wrap"
                            Visibility="{Binding SelectedNode.IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+                <ComboBox ItemsSource="{Binding ActionTypeValues}"
+                          SelectedItem="{Binding SelectedNode.ActionType}"
+                          Margin="0,2,0,10"
+                          Visibility="{Binding SelectedNode.IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+
+                <TextBlock Text="Filter preset (applied when this item is clicked)"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding SelectedNode.IsFilterPresetAction, Converter={StaticResource BoolToVisibilityConverter}}" />
                 <ComboBox ItemsSource="{Binding AvailableFilterPresets}"
                           DisplayMemberPath="Name"
                           SelectedValuePath="Id"
                           SelectedValue="{Binding SelectedNode.FilterPresetId}"
                           Margin="0,2,0,10"
-                          Visibility="{Binding SelectedNode.IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+                          Visibility="{Binding SelectedNode.IsFilterPresetAction, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                <TextBlock Text="File or folder to open (executable, video, folder, etc.)"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding SelectedNode.IsOpenPathAction, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <Grid Margin="0,2,0,10"
+                      Visibility="{Binding SelectedNode.IsOpenPathAction, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" Text="{Binding SelectedNode.TargetPath}" IsReadOnly="True" Margin="0,0,6,0" />
+                    <Button Grid.Column="1" Content="Browse file..." Command="{Binding BrowseTargetFileCommand}" Margin="0,0,6,0" />
+                    <Button Grid.Column="2" Content="Browse folder..." Command="{Binding BrowseTargetFolderCommand}" />
+                </Grid>
 
                 <TextBlock Text="This item has sub-items, so it works as an expandable category instead of a launch button. Remove its children to turn it back into a clickable item."
                            TextWrapping="Wrap"

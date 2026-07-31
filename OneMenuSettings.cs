@@ -49,6 +49,9 @@ namespace OneMenu
         public Array DisplayModeValues => Enum.GetValues(typeof(MenuItemDisplayMode));
 
         [DontSerialize]
+        public Array ActionTypeValues => Enum.GetValues(typeof(MenuActionType));
+
+        [DontSerialize]
         public RelayCommand AddRootNodeCommand { get; }
 
         [DontSerialize]
@@ -68,6 +71,12 @@ namespace OneMenu
 
         [DontSerialize]
         public RelayCommand ClearIconCommand { get; }
+
+        [DontSerialize]
+        public RelayCommand BrowseTargetFileCommand { get; }
+
+        [DontSerialize]
+        public RelayCommand BrowseTargetFolderCommand { get; }
 
         [DontSerialize]
         public RelayCommand ToggleMainIconEditorCommand { get; }
@@ -137,6 +146,34 @@ namespace OneMenu
                 if (SelectedNode != null)
                 {
                     SelectedNode.IconPath = null;
+                }
+            });
+
+            BrowseTargetFileCommand = new RelayCommand(() =>
+            {
+                if (SelectedNode == null)
+                {
+                    return;
+                }
+
+                var path = plugin?.PlayniteApi?.Dialogs?.SelectFile("All files|*.*", null);
+                if (!string.IsNullOrEmpty(path))
+                {
+                    SelectedNode.TargetPath = path;
+                }
+            });
+
+            BrowseTargetFolderCommand = new RelayCommand(() =>
+            {
+                if (SelectedNode == null)
+                {
+                    return;
+                }
+
+                var path = plugin?.PlayniteApi?.Dialogs?.SelectFolder();
+                if (!string.IsNullOrEmpty(path))
+                {
+                    SelectedNode.TargetPath = path;
                 }
             });
 
@@ -308,6 +345,12 @@ namespace OneMenu
                     if (node.ShowIcon && !string.IsNullOrEmpty(node.IconPath) && !File.Exists(node.IconPath))
                     {
                         foundErrors.Add($"Icon file not found for '{node.Title}': {node.IconPath}");
+                    }
+
+                    if (!node.IsCategory && node.ActionType == MenuActionType.OpenPath &&
+                        !string.IsNullOrEmpty(node.TargetPath) && !File.Exists(node.TargetPath) && !Directory.Exists(node.TargetPath))
+                    {
+                        foundErrors.Add($"File or folder not found for '{node.Title}': {node.TargetPath}");
                     }
 
                     Validate(node.Children);

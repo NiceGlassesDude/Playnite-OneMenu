@@ -1,6 +1,7 @@
 using Playnite.SDK;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media.Imaging;
@@ -60,27 +61,50 @@ namespace OneMenu
             }
             else
             {
-                item.Click += (s, e) =>
-                {
-                    if (node.FilterPresetId == null)
-                    {
-                        logger.Warn($"Quick Launcher: '{node.Title}' has no filter preset assigned.");
-                        return;
-                    }
-
-                    var api = OneMenuPlugin.Api;
-                    if (api == null)
-                    {
-                        logger.Error("Quick Launcher: Playnite API reference is null.");
-                        return;
-                    }
-
-                    api.MainView.ApplyFilterPreset(node.FilterPresetId.Value);
-                    api.MainView.SwitchToLibraryView();
-                };
+                item.Click += (s, e) => RunAction(node);
             }
 
             return item;
+        }
+
+        private static void RunAction(MenuNode node)
+        {
+            var api = OneMenuPlugin.Api;
+            if (api == null)
+            {
+                logger.Error("Quick Launcher: Playnite API reference is null.");
+                return;
+            }
+
+            if (node.ActionType == MenuActionType.OpenPath)
+            {
+                if (string.IsNullOrEmpty(node.TargetPath))
+                {
+                    logger.Warn($"Quick Launcher: '{node.Title}' has no file or folder assigned.");
+                    return;
+                }
+
+                try
+                {
+                    Process.Start(new ProcessStartInfo(node.TargetPath) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, $"Quick Launcher: couldn't open '{node.TargetPath}' for '{node.Title}'.");
+                    api.Dialogs.ShowErrorMessage($"Couldn't open:\n{node.TargetPath}", "OneMenu");
+                }
+
+                return;
+            }
+
+            if (node.FilterPresetId == null)
+            {
+                logger.Warn($"Quick Launcher: '{node.Title}' has no filter preset assigned.");
+                return;
+            }
+
+            api.MainView.ApplyFilterPreset(node.FilterPresetId.Value);
+            api.MainView.SwitchToLibraryView();
         }
     }
 }

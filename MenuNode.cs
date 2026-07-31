@@ -11,6 +11,12 @@ namespace OneMenu
         IconAndText
     }
 
+    public enum MenuActionType
+    {
+        FilterPreset,
+        OpenPath
+    }
+
     public class MenuNode : LocalObservableObject
     {
         private Guid id = Guid.NewGuid();
@@ -25,8 +31,23 @@ namespace OneMenu
         private MenuItemDisplayMode displayMode = MenuItemDisplayMode.IconAndText;
         public MenuItemDisplayMode DisplayMode { get => displayMode; set => SetValue(ref displayMode, value); }
 
+        private MenuActionType actionType = MenuActionType.FilterPreset;
+        public MenuActionType ActionType
+        {
+            get => actionType;
+            set
+            {
+                SetValue(ref actionType, value);
+                OnPropertyChanged(nameof(IsFilterPresetAction));
+                OnPropertyChanged(nameof(IsOpenPathAction));
+            }
+        }
+
         private Guid? filterPresetId;
         public Guid? FilterPresetId { get => filterPresetId; set => SetValue(ref filterPresetId, value); }
+
+        private string targetPath;
+        public string TargetPath { get => targetPath; set => SetValue(ref targetPath, value); }
 
         private ObservableCollection<MenuNode> children = new ObservableCollection<MenuNode>();
         public ObservableCollection<MenuNode> Children
@@ -56,6 +77,8 @@ namespace OneMenu
         private void Children_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             OnPropertyChanged(nameof(IsCategory));
+            OnPropertyChanged(nameof(IsFilterPresetAction));
+            OnPropertyChanged(nameof(IsOpenPathAction));
         }
 
         private bool isExpanded = true;
@@ -64,6 +87,12 @@ namespace OneMenu
 
         [DontSerialize]
         public bool IsCategory => Children != null && Children.Count > 0;
+
+        [DontSerialize]
+        public bool IsFilterPresetAction => !IsCategory && ActionType == MenuActionType.FilterPreset;
+
+        [DontSerialize]
+        public bool IsOpenPathAction => !IsCategory && ActionType == MenuActionType.OpenPath;
 
         [DontSerialize]
         public bool ShowIcon => DisplayMode == MenuItemDisplayMode.IconOnly || DisplayMode == MenuItemDisplayMode.IconAndText;
@@ -79,7 +108,9 @@ namespace OneMenu
                 Title = Title,
                 IconPath = IconPath,
                 DisplayMode = DisplayMode,
-                FilterPresetId = FilterPresetId
+                ActionType = ActionType,
+                FilterPresetId = FilterPresetId,
+                TargetPath = TargetPath
             };
 
             foreach (var child in Children)
