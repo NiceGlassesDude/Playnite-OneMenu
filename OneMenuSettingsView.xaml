@@ -1,0 +1,104 @@
+<UserControl x:Class="OneMenu.OneMenuSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:OneMenu"
+             MinWidth="700" MinHeight="520">
+    <UserControl.Resources>
+        <local:NullToBoolConverter x:Key="NullToBoolConverter" />
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
+        <HierarchicalDataTemplate x:Key="EditorNodeTemplate" ItemsSource="{Binding Children}">
+            <TextBlock Text="{Binding Title}" Margin="2" />
+        </HierarchicalDataTemplate>
+    </UserControl.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
+
+            <DockPanel Grid.Column="0">
+                <StackPanel DockPanel.Dock="Left" Orientation="Vertical" Width="110" Margin="0,0,10,0">
+                    <Button Content="Add category" Margin="0,0,0,4" Command="{Binding AddRootNodeCommand}"
+                            ToolTip="Adds a new top-level menu button" HorizontalContentAlignment="Center" />
+                    <Button Content="Add sub-item" Margin="0,0,0,4" Command="{Binding AddChildNodeCommand}"
+                            ToolTip="Adds a child under the selected item" HorizontalContentAlignment="Center" />
+                    <Button Content="Remove" Margin="0,0,0,14" Command="{Binding RemoveSelectedNodeCommand}"
+                            HorizontalContentAlignment="Center" />
+                    <Button Content="Move up" Margin="0,0,0,4" Command="{Binding MoveSelectedUpCommand}"
+                            HorizontalContentAlignment="Center" />
+                    <Button Content="Move down" Margin="0,0,0,14" Command="{Binding MoveSelectedDownCommand}"
+                            HorizontalContentAlignment="Center" />
+                    <Button Content="Set Icon" Command="{Binding ToggleMainIconEditorCommand}"
+                            HorizontalContentAlignment="Center" />
+                </StackPanel>
+
+                <TreeView x:Name="NodesTreeView"
+                          ItemsSource="{Binding RootNodes}"
+                          ItemTemplate="{StaticResource EditorNodeTemplate}"
+                          SelectedItemChanged="NodesTreeView_SelectedItemChanged" />
+            </DockPanel>
+
+            <StackPanel Grid.Column="2" IsEnabled="{Binding SelectedNode, Converter={StaticResource NullToBoolConverter}}">
+                <TextBlock Text="Selected item" FontWeight="Bold" Margin="0,0,0,10" />
+
+                <TextBlock Text="Title" />
+                <TextBox Text="{Binding SelectedNode.Title, UpdateSourceTrigger=PropertyChanged}" Margin="0,2,0,10" />
+
+                <TextBlock Text="Display mode" />
+                <ComboBox ItemsSource="{Binding DisplayModeValues}"
+                          SelectedItem="{Binding SelectedNode.DisplayMode}"
+                          Margin="0,2,0,10" />
+
+                <TextBlock Text="Icon" />
+                <Grid Margin="0,2,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" Text="{Binding SelectedNode.IconPath}" IsReadOnly="True" Margin="0,0,6,0" />
+                    <Button Grid.Column="1" Content="Browse..." Command="{Binding BrowseIconCommand}" Margin="0,0,6,0" />
+                    <Button Grid.Column="2" Content="Clear" Command="{Binding ClearIconCommand}" />
+                </Grid>
+
+                <TextBlock Text="Filter preset (applied when this item is clicked)"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding SelectedNode.IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+                <ComboBox ItemsSource="{Binding AvailableFilterPresets}"
+                          DisplayMemberPath="Name"
+                          SelectedValuePath="Id"
+                          SelectedValue="{Binding SelectedNode.FilterPresetId}"
+                          Margin="0,2,0,10"
+                          Visibility="{Binding SelectedNode.IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}" />
+
+                <TextBlock Text="This item has sub-items, so it works as an expandable category instead of a launch button. Remove its children to turn it back into a clickable item."
+                           TextWrapping="Wrap"
+                           Opacity="0.7"
+                           Visibility="{Binding SelectedNode.IsCategory, Converter={StaticResource BoolToVisibilityConverter}}" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="1" Margin="0,14,0,0" Padding="10" BorderThickness="1" BorderBrush="#33FFFFFF"
+                Visibility="{Binding ShowMainIconEditor, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="{Binding MainIconPreviewPath}" Width="48" Height="48" Margin="0,0,14,0" />
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Main sidebar icon" FontWeight="Bold" Margin="0,0,0,6" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Browse..." Margin="0,0,6,0" Command="{Binding BrowseMainIconCommand}" />
+                        <Button Content="Reset to default" Command="{Binding ResetMainIconCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
