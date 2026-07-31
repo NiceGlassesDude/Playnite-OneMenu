@@ -1,0 +1,73 @@
+<Window x:Class="OneMenu.TagSearchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Tag Search" Height="560" Width="760"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource NormalBrush}"
+        Foreground="{DynamicResource TextBrush}">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="34" CornerRadius="0" GlassFrameThickness="0" ResizeBorderThickness="5" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="34" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Background="{DynamicResource NormalBrushDark}">
+            <TextBlock Text="Tag Search" VerticalAlignment="Center" Margin="10,0,0,0" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                        shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button Content="—" Width="40" Click="Minimize_Click" Background="Transparent" BorderThickness="0"
+                        Foreground="{DynamicResource TextBrush}" />
+                <Button Content="✕" Width="40" Click="Close_Click" Background="Transparent" BorderThickness="0"
+                        Foreground="{DynamicResource TextBrush}" />
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Type a tag or genre" />
+                <TextBlock x:Name="ResultCountText" Grid.Column="1" Opacity="0.6" />
+            </Grid>
+
+            <TextBox x:Name="SearchBox" Grid.Row="1" Margin="0,0,0,6" FontSize="16" Padding="6"
+                     TextChanged="SearchBox_TextChanged" />
+
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="ResultsItemsControl">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Click="ResultButton_Click" Tag="{Binding Game}"
+                                    Margin="6" Padding="0" Background="Transparent" BorderThickness="0"
+                                    Cursor="Hand" Width="120">
+                                <StackPanel>
+                                    <Image Source="{Binding CoverPath}" Width="120" Height="160" Stretch="UniformToFill" />
+                                    <TextBlock Text="{Binding Game.Name}" TextWrapping="Wrap" TextAlignment="Center"
+                                               Margin="0,4,0,0" FontSize="12" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>

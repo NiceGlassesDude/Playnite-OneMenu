@@ -12,7 +12,7 @@ namespace OneMenu
     {
         private static readonly ILogger logger = LogManager.GetLogger();
 
-        public static ContextMenu BuildContextMenu(IEnumerable<MenuNode> rootNodes)
+        public static ContextMenu BuildContextMenu(IEnumerable<MenuNode> rootNodes, bool tagSearchEnabled)
         {
             var menu = new ContextMenu
             {
@@ -23,6 +23,32 @@ namespace OneMenu
             foreach (var node in rootNodes)
             {
                 menu.Items.Add(BuildMenuItem(node));
+            }
+
+            if (tagSearchEnabled)
+            {
+                menu.Items.Add(new Separator());
+
+                var searchItem = new MenuItem
+                {
+                    Header = "Tag Search",
+                    Icon = new TextBlock
+                    {
+                        Text = "🔍",
+                        FontSize = 16,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                        VerticalAlignment = System.Windows.VerticalAlignment.Center
+                    }
+                };
+                searchItem.Click += (s, e) =>
+                {
+                    var window = new TagSearchWindow
+                    {
+                        Owner = System.Windows.Application.Current?.MainWindow
+                    };
+                    window.Show();
+                };
+                menu.Items.Add(searchItem);
             }
 
             return menu;

@@ -37,8 +37,12 @@
                             HorizontalContentAlignment="Center" />
                     <Button Content="Move down" Margin="0,0,0,14" Command="{Binding MoveSelectedDownCommand}"
                             HorizontalContentAlignment="Center" />
-                    <Button Content="Set Icon" Command="{Binding ToggleMainIconEditorCommand}"
+                    <Button Content="Set Icon" Margin="0,0,0,14" Command="{Binding ToggleMainIconEditorCommand}"
                             HorizontalContentAlignment="Center" />
+                    <CheckBox IsChecked="{Binding TagSearchEnabled}"
+                              ToolTip="Adds the Tag Search button at the bottom of the menu">
+                        <TextBlock Text="Tag Search" TextWrapping="Wrap" />
+                    </CheckBox>
                 </StackPanel>
 
                 <TreeView x:Name="NodesTreeView"

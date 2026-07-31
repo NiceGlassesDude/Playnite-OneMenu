@@ -16,6 +16,7 @@ namespace OneMenu
 
         private List<MenuNode> editingSnapshot;
         private string editingMainIconPath;
+        private bool editingTagSearchEnabled;
 
         private ObservableCollection<MenuNode> rootNodes = new ObservableCollection<MenuNode>();
         public ObservableCollection<MenuNode> RootNodes { get => rootNodes; set => SetValue(ref rootNodes, value); }
@@ -41,6 +42,9 @@ namespace OneMenu
         private bool showMainIconEditor;
         [DontSerialize]
         public bool ShowMainIconEditor { get => showMainIconEditor; set => SetValue(ref showMainIconEditor, value); }
+
+        private bool tagSearchEnabled;
+        public bool TagSearchEnabled { get => tagSearchEnabled; set => SetValue(ref tagSearchEnabled, value); }
 
         [DontSerialize]
         public List<FilterPreset> AvailableFilterPresets { get; private set; } = new List<FilterPreset>();
@@ -208,6 +212,7 @@ namespace OneMenu
             }
 
             MainIconPath = savedSettings?.MainIconPath;
+            TagSearchEnabled = savedSettings?.TagSearchEnabled ?? false;
 
             RefreshAvailableFilterPresets();
         }
@@ -309,6 +314,7 @@ namespace OneMenu
         {
             editingSnapshot = RootNodes.Select(n => n.Clone()).ToList();
             editingMainIconPath = MainIconPath;
+            editingTagSearchEnabled = TagSearchEnabled;
         }
 
         public void CancelEdit()
@@ -319,6 +325,7 @@ namespace OneMenu
             }
 
             MainIconPath = editingMainIconPath;
+            TagSearchEnabled = editingTagSearchEnabled;
             ShowMainIconEditor = false;
             SelectedNode = null;
         }

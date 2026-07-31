@@ -41,7 +41,7 @@ namespace OneMenu
                 Type = SiderbarItemType.Button,
                 Activated = () =>
                 {
-                    var menu = MenuBuilder.BuildContextMenu(settings.RootNodes);
+                    var menu = MenuBuilder.BuildContextMenu(settings.RootNodes, settings.TagSearchEnabled);
                     menu.IsOpen = true;
                 }
             };
