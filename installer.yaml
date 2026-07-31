@@ -1,5 +1,12 @@
 AddonId: 'OneMenu'
 Packages:
+  - Version: '1.4.0'
+    RequiredApiVersion: '6.2.0'
+    ReleaseDate: '2026-07-31'
+    PackageUrl: 'https://github.com/NiceGlassesDude/Playnite-OneMenu/releases/download/1.4.0/OneMenu_1_4_0.pext'
+    Changelog:
+      - "Added Tag Search option to instantly filter library"
+
   - Version: '1.3.9'
     RequiredApiVersion: '6.2.0'
     ReleaseDate: '2026-07-31'
@@ -7,3 +14,10 @@ Packages:
     Changelog:
       - "Added custom path routing option"
       - "Optimized settings UI"
+
+  - Version: '1.3.8'
+    RequiredApiVersion: '6.2.0'
+    ReleaseDate: '2026-07-30'
+    PackageUrl: 'https://github.com/NiceGlassesDude/Playnite-OneMenu/releases/download/1.3.8/OneMenu_1_3_8.pext'
+    Changelog:
+      - "Initial release"
