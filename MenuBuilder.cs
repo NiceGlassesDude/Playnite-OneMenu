@@ -1,6 +1,5 @@
 using Playnite.SDK;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -12,7 +11,7 @@ namespace OneMenu
     {
         private static readonly ILogger logger = LogManager.GetLogger();
 
-        public static ContextMenu BuildContextMenu(IEnumerable<MenuNode> rootNodes, bool tagSearchEnabled)
+        public static ContextMenu BuildContextMenu(OneMenuSettings settings)
         {
             var menu = new ContextMenu
             {
@@ -20,21 +19,31 @@ namespace OneMenu
                 PlacementTarget = System.Windows.Application.Current?.MainWindow
             };
 
-            foreach (var node in rootNodes)
+            foreach (var node in settings.RootNodes)
             {
-                menu.Items.Add(BuildMenuItem(node));
+                if (node.IsHidden)
+                {
+                    continue;
+                }
+
+                var rootItem = BuildMenuItem(node);
+                if (rootItem != null)
+                {
+                    menu.Items.Add(rootItem);
+                }
             }
 
-            if (tagSearchEnabled)
+            if (settings.TagSearchEnabled)
             {
                 menu.Items.Add(new Separator());
 
                 var searchItem = new MenuItem
                 {
-                    Header = "Tag Search",
+                    Header = "Tag Browser",
                     Icon = new TextBlock
                     {
-                        Text = "🔍",
+                        Text = "\xE721",
+                        FontFamily = new System.Windows.Media.FontFamily("Segoe MDL2 Assets"),
                         FontSize = 16,
                         HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
                         VerticalAlignment = System.Windows.VerticalAlignment.Center
@@ -42,9 +51,13 @@ namespace OneMenu
                 };
                 searchItem.Click += (s, e) =>
                 {
+                    GetSizeForPreset(settings.TagBrowserSize, out var width, out var height);
                     var window = new TagSearchWindow
                     {
-                        Owner = System.Windows.Application.Current?.MainWindow
+                        Owner = System.Windows.Application.Current?.MainWindow,
+                        Opacity = settings.TagBrowserOpacity,
+                        Width = width,
+                        Height = height
                     };
                     window.Show();
                 };
@@ -54,8 +67,32 @@ namespace OneMenu
             return menu;
         }
 
+        private static void GetSizeForPreset(TagBrowserSizePreset preset, out double width, out double height)
+        {
+            switch (preset)
+            {
+                case TagBrowserSizePreset.Bigger:
+                    width = 960;
+                    height = 720;
+                    break;
+                case TagBrowserSizePreset.MuchBigger:
+                    width = 1200;
+                    height = 880;
+                    break;
+                default:
+                    width = 760;
+                    height = 560;
+                    break;
+            }
+        }
+
         private static MenuItem BuildMenuItem(MenuNode node)
         {
+            if (node.IsHidden)
+            {
+                return null;
+            }
+
             var item = new MenuItem
             {
                 Header = node.ShowText ? node.Title : string.Empty
@@ -80,9 +117,25 @@ namespace OneMenu
 
             if (node.IsCategory)
             {
+                var childCount = 0;
                 foreach (var child in node.Children)
                 {
-                    item.Items.Add(BuildMenuItem(child));
+                    if (child.IsHidden)
+                    {
+                        continue;
+                    }
+
+                    var childItem = BuildMenuItem(child);
+                    if (childItem != null)
+                    {
+                        item.Items.Add(childItem);
+                        childCount++;
+                    }
+                }
+
+                if (childCount == 0)
+                {
+                    return null;
                 }
             }
             else

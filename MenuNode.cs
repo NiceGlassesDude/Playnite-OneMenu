@@ -17,6 +17,13 @@ namespace OneMenu
         OpenPath
     }
 
+    public enum TagBrowserSizePreset
+    {
+        Default,
+        Bigger,
+        MuchBigger
+    }
+
     public class MenuNode : LocalObservableObject
     {
         private Guid id = Guid.NewGuid();
@@ -48,6 +55,9 @@ namespace OneMenu
 
         private string targetPath;
         public string TargetPath { get => targetPath; set => SetValue(ref targetPath, value); }
+
+        private bool isHidden;
+        public bool IsHidden { get => isHidden; set => SetValue(ref isHidden, value); }
 
         private ObservableCollection<MenuNode> children = new ObservableCollection<MenuNode>();
         public ObservableCollection<MenuNode> Children
@@ -110,7 +120,8 @@ namespace OneMenu
                 DisplayMode = DisplayMode,
                 ActionType = ActionType,
                 FilterPresetId = FilterPresetId,
-                TargetPath = TargetPath
+                TargetPath = TargetPath,
+                IsHidden = IsHidden
             };
 
             foreach (var child in Children)

@@ -17,6 +17,8 @@ namespace OneMenu
         private SidebarItem sidebarItem;
 
         public static IPlayniteAPI Api { get; private set; }
+        public static bool FollowPlayniteTheme { get; set; }
+        public static string PluginDataPath { get; private set; }
 
         public string DefaultIconPath => Path.Combine(pluginFolder, "icon.png");
 
@@ -24,6 +26,7 @@ namespace OneMenu
         {
             Api = api;
             pluginFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            PluginDataPath = GetPluginUserDataPath();
             settings = new OneMenuSettings(this);
 
             Properties = new GenericPluginProperties
@@ -41,7 +44,7 @@ namespace OneMenu
                 Type = SiderbarItemType.Button,
                 Activated = () =>
                 {
-                    var menu = MenuBuilder.BuildContextMenu(settings.RootNodes, settings.TagSearchEnabled);
+                    var menu = MenuBuilder.BuildContextMenu(settings);
                     menu.IsOpen = true;
                 }
             };

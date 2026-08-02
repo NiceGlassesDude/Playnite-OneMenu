@@ -1,6 +1,7 @@
 using Playnite.SDK.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -92,6 +93,82 @@ namespace OneMenu
                 OneMenuPlugin.Api?.StartGame(game.Id);
                 Close();
             }
+        }
+
+        private void ResultButton_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (!(sender is Button button) || !(button.Tag is Game game))
+            {
+                return;
+            }
+
+            var api = OneMenuPlugin.Api;
+            var menu = new ContextMenu();
+
+            var playItem = new MenuItem { Header = "Play" };
+            playItem.Click += (s, ev) =>
+            {
+                api?.StartGame(game.Id);
+                Close();
+            };
+            menu.Items.Add(playItem);
+
+            var favoriteItem = new MenuItem { Header = game.Favorite ? "Remove from Favorites" : "Add to Favorites" };
+            favoriteItem.Click += (s, ev) =>
+            {
+                game.Favorite = !game.Favorite;
+                api?.Database.Games.Update(game);
+            };
+            menu.Items.Add(favoriteItem);
+
+            if (!string.IsNullOrEmpty(game.InstallDirectory))
+            {
+                var openFolderItem = new MenuItem { Header = "Open Install Folder" };
+                openFolderItem.Click += (s, ev) =>
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(game.InstallDirectory) { UseShellExecute = true });
+                    }
+                    catch
+                    {
+                    }
+                };
+                menu.Items.Add(openFolderItem);
+            }
+
+            menu.Items.Add(new Separator());
+
+            var showInLibraryItem = new MenuItem { Header = "Show in Library" };
+            showInLibraryItem.Click += (s, ev) =>
+            {
+                if (api != null)
+                {
+                    var clearFilter = new FilterPreset { Settings = new FilterPresetSettings() };
+                    api.MainView.ApplyFilterPreset(clearFilter);
+                    api.MainView.SwitchToLibraryView();
+                    api.MainView.SelectGame(game.Id);
+                }
+
+                var mainWindow = System.Windows.Application.Current?.MainWindow;
+                if (mainWindow != null)
+                {
+                    if (mainWindow.WindowState == WindowState.Minimized)
+                    {
+                        mainWindow.WindowState = WindowState.Normal;
+                    }
+
+                    mainWindow.Activate();
+                }
+
+                Close();
+            };
+            menu.Items.Add(showInLibraryItem);
+
+            button.ContextMenu = menu;
+            menu.PlacementTarget = button;
+            menu.IsOpen = true;
+            e.Handled = true;
         }
 
         private void Minimize_Click(object sender, RoutedEventArgs e)

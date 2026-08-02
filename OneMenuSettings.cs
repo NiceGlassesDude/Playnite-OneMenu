@@ -10,6 +10,12 @@ using System.Windows;
 
 namespace OneMenu
 {
+    public class TagBrowserSizeOption
+    {
+        public TagBrowserSizePreset Value { get; set; }
+        public string DisplayText { get; set; }
+    }
+
     public class OneMenuSettings : LocalObservableObject, ISettings
     {
         private readonly OneMenuPlugin plugin;
@@ -17,6 +23,9 @@ namespace OneMenu
         private List<MenuNode> editingSnapshot;
         private string editingMainIconPath;
         private bool editingTagSearchEnabled;
+        private bool editingFollowPlayniteTheme;
+        private double editingTagBrowserOpacity;
+        private TagBrowserSizePreset editingTagBrowserSize;
 
         private ObservableCollection<MenuNode> rootNodes = new ObservableCollection<MenuNode>();
         public ObservableCollection<MenuNode> RootNodes { get => rootNodes; set => SetValue(ref rootNodes, value); }
@@ -45,6 +54,46 @@ namespace OneMenu
 
         private bool tagSearchEnabled;
         public bool TagSearchEnabled { get => tagSearchEnabled; set => SetValue(ref tagSearchEnabled, value); }
+
+        private bool followPlayniteTheme;
+        public bool FollowPlayniteTheme
+        {
+            get => followPlayniteTheme;
+            set
+            {
+                SetValue(ref followPlayniteTheme, value);
+                OneMenuPlugin.FollowPlayniteTheme = value;
+            }
+        }
+
+        private double tagBrowserOpacity = 1.0;
+        public double TagBrowserOpacity
+        {
+            get => tagBrowserOpacity;
+            set
+            {
+                SetValue(ref tagBrowserOpacity, value);
+                OnPropertyChanged(nameof(TagBrowserTransparencyPercent));
+            }
+        }
+
+        [DontSerialize]
+        public double TagBrowserTransparencyPercent
+        {
+            get => (1.0 - TagBrowserOpacity) * 100.0;
+            set => TagBrowserOpacity = 1.0 - (value / 100.0);
+        }
+
+        private TagBrowserSizePreset tagBrowserSize = TagBrowserSizePreset.Default;
+        public TagBrowserSizePreset TagBrowserSize { get => tagBrowserSize; set => SetValue(ref tagBrowserSize, value); }
+
+        [DontSerialize]
+        public List<TagBrowserSizeOption> TagBrowserSizeOptions { get; } = new List<TagBrowserSizeOption>
+        {
+            new TagBrowserSizeOption { Value = TagBrowserSizePreset.Default, DisplayText = "Default (760x560)" },
+            new TagBrowserSizeOption { Value = TagBrowserSizePreset.Bigger, DisplayText = "960x720" },
+            new TagBrowserSizeOption { Value = TagBrowserSizePreset.MuchBigger, DisplayText = "1200x880" }
+        };
 
         [DontSerialize]
         public List<FilterPreset> AvailableFilterPresets { get; private set; } = new List<FilterPreset>();
@@ -90,6 +139,9 @@ namespace OneMenu
 
         [DontSerialize]
         public RelayCommand ResetMainIconCommand { get; }
+
+        [DontSerialize]
+        public RelayCommand OpenAdvancedSettingsCommand { get; }
 
         public OneMenuSettings()
         {
@@ -199,6 +251,15 @@ namespace OneMenu
             {
                 MainIconPath = null;
             });
+
+            OpenAdvancedSettingsCommand = new RelayCommand(() =>
+            {
+                var window = new AdvancedSettingsWindow(this)
+                {
+                    Owner = System.Windows.Application.Current?.MainWindow
+                };
+                window.ShowDialog();
+            });
         }
 
         public OneMenuSettings(OneMenuPlugin plugin) : this()
@@ -213,6 +274,9 @@ namespace OneMenu
 
             MainIconPath = savedSettings?.MainIconPath;
             TagSearchEnabled = savedSettings?.TagSearchEnabled ?? false;
+            FollowPlayniteTheme = savedSettings?.FollowPlayniteTheme ?? false;
+            TagBrowserOpacity = savedSettings?.TagBrowserOpacity ?? 1.0;
+            TagBrowserSize = savedSettings?.TagBrowserSize ?? TagBrowserSizePreset.Default;
 
             RefreshAvailableFilterPresets();
         }
@@ -315,6 +379,9 @@ namespace OneMenu
             editingSnapshot = RootNodes.Select(n => n.Clone()).ToList();
             editingMainIconPath = MainIconPath;
             editingTagSearchEnabled = TagSearchEnabled;
+            editingFollowPlayniteTheme = FollowPlayniteTheme;
+            editingTagBrowserOpacity = TagBrowserOpacity;
+            editingTagBrowserSize = TagBrowserSize;
         }
 
         public void CancelEdit()
@@ -326,6 +393,9 @@ namespace OneMenu
 
             MainIconPath = editingMainIconPath;
             TagSearchEnabled = editingTagSearchEnabled;
+            FollowPlayniteTheme = editingFollowPlayniteTheme;
+            TagBrowserOpacity = editingTagBrowserOpacity;
+            TagBrowserSize = editingTagBrowserSize;
             ShowMainIconEditor = false;
             SelectedNode = null;
         }

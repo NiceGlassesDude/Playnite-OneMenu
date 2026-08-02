@@ -6,9 +6,10 @@
     <UserControl.Resources>
         <local:NullToBoolConverter x:Key="NullToBoolConverter" />
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <local:BoolToDimOpacityConverter x:Key="BoolToDimOpacityConverter" />
 
         <HierarchicalDataTemplate x:Key="EditorNodeTemplate" ItemsSource="{Binding Children}">
-            <TextBlock Text="{Binding Title}" Margin="2" />
+            <TextBlock Text="{Binding Title}" Margin="2" Opacity="{Binding IsHidden, Converter={StaticResource BoolToDimOpacityConverter}}" />
         </HierarchicalDataTemplate>
     </UserControl.Resources>
 
@@ -21,7 +22,7 @@
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="18" />
                 <ColumnDefinition Width="3*" />
             </Grid.ColumnDefinitions>
 
@@ -40,16 +41,22 @@
                     <Button Content="Set Icon" Margin="0,0,0,14" Command="{Binding ToggleMainIconEditorCommand}"
                             HorizontalContentAlignment="Center" />
                     <CheckBox IsChecked="{Binding TagSearchEnabled}"
-                              ToolTip="Adds the Tag Search button at the bottom of the menu">
-                        <TextBlock Text="Tag Search" TextWrapping="Wrap" />
+                              ToolTip="Adds the Tag Browser button at the bottom of the menu">
+                        <TextBlock Text="Tag Browser" TextWrapping="Wrap" />
                     </CheckBox>
+                    <Button Content="ADV-Settings" Margin="0,10,0,0" Command="{Binding OpenAdvancedSettingsCommand}"
+                            HorizontalContentAlignment="Center" />
                 </StackPanel>
+
+                <Border DockPanel.Dock="Left" Width="1" Background="#33FFFFFF" Margin="0,0,10,0" />
 
                 <TreeView x:Name="NodesTreeView"
                           ItemsSource="{Binding RootNodes}"
                           ItemTemplate="{StaticResource EditorNodeTemplate}"
                           SelectedItemChanged="NodesTreeView_SelectedItemChanged" />
             </DockPanel>
+
+            <Border Grid.Column="1" Width="1" Background="#33FFFFFF" />
 
             <StackPanel Grid.Column="2" IsEnabled="{Binding SelectedNode, Converter={StaticResource NullToBoolConverter}}">
                 <TextBlock Text="Selected item" FontWeight="Bold" Margin="0,0,0,10" />
@@ -110,6 +117,15 @@
                 <TextBlock Text="This item has sub-items, so it works as an expandable category instead of a launch button. Remove its children to turn it back into a clickable item."
                            TextWrapping="Wrap"
                            Opacity="0.7"
+                           Visibility="{Binding SelectedNode.IsCategory, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                <CheckBox IsChecked="{Binding SelectedNode.IsHidden}" Margin="0,16,0,0">
+                    <TextBlock Text="Hide Button" TextWrapping="Wrap" />
+                </CheckBox>
+                <TextBlock Text="If you hide this, all buttons within this category will be hidden as well."
+                           TextWrapping="Wrap"
+                           Opacity="0.7"
+                           Margin="0,4,0,0"
                            Visibility="{Binding SelectedNode.IsCategory, Converter={StaticResource BoolToVisibilityConverter}}" />
             </StackPanel>
         </Grid>
