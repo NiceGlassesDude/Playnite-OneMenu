@@ -50,4 +50,36 @@ namespace OneMenu
             throw new NotSupportedException();
         }
     }
+
+    public class PathToImageConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var decodeWidth = 0;
+            if (parameter != null)
+            {
+                int.TryParse(parameter.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out decodeWidth);
+            }
+
+            return ImageHelper.LoadFromFile(value as string, decodeWidth);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    public class InverseBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return !(value is bool flag && flag);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return !(value is bool flag && flag);
+        }
+    }
 }

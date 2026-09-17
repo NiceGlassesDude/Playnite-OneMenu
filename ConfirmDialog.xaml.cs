@@ -4,13 +4,16 @@ namespace OneMenu
 {
     public partial class ConfirmDialog : Window
     {
-        public ConfirmDialog(string title, string message, string confirmButtonText = "Confirm")
+        public ConfirmDialog(string title, string message, string confirmButtonText = null)
         {
             InitializeComponent();
             OneMenuTheme.Apply(this, !OneMenuPlugin.FollowPlayniteTheme);
             TitleText.Text = title;
             MessageText.Text = message;
-            ConfirmButton.Content = confirmButtonText;
+            if (!string.IsNullOrEmpty(confirmButtonText))
+            {
+                ConfirmButton.Content = confirmButtonText;
+            }
         }
 
         private void Confirm_Click(object sender, RoutedEventArgs e)

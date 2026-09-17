@@ -13,12 +13,14 @@ namespace OneMenu
             this.settings = settings;
             DataContext = settings;
             OneMenuTheme.Apply(this, !OneMenuPlugin.FollowPlayniteTheme);
+            ManageIconsView.Initialize(settings, false);
             CategoryList.SelectedIndex = 0;
         }
 
         private void CategoryList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (TagBrowserPanel == null || ThemePanel == null || TagsGenresPanel == null || ImportExportPanel == null)
+            if (TagBrowserPanel == null || ThemePanel == null || TagsGenresPanel == null ||
+                UiSettingsPanel == null || ManageIconsPanel == null || ImportExportPanel == null)
             {
                 return;
             }
@@ -26,6 +28,8 @@ namespace OneMenu
             TagBrowserPanel.Visibility = Visibility.Collapsed;
             ThemePanel.Visibility = Visibility.Collapsed;
             TagsGenresPanel.Visibility = Visibility.Collapsed;
+            UiSettingsPanel.Visibility = Visibility.Collapsed;
+            ManageIconsPanel.Visibility = Visibility.Collapsed;
             ImportExportPanel.Visibility = Visibility.Collapsed;
 
             switch (CategoryList.SelectedIndex)
@@ -40,6 +44,13 @@ namespace OneMenu
                     TagsGenresPanel.Visibility = Visibility.Visible;
                     break;
                 case 3:
+                    UiSettingsPanel.Visibility = Visibility.Visible;
+                    break;
+                case 4:
+                    ManageIconsView.Reload(null);
+                    ManageIconsPanel.Visibility = Visibility.Visible;
+                    break;
+                case 5:
                     ImportExportPanel.Visibility = Visibility.Visible;
                     break;
             }
@@ -60,7 +71,7 @@ namespace OneMenu
 
             if (!includeTags && !includeGenres && !includeConfig && !includeIcons)
             {
-                ImportExportStatusText.Text = "Select at least one thing to export first.";
+                ImportExportStatusText.Text = Loc.Get("LOCOneMenuBackupSelectSomething");
                 return;
             }
 
@@ -77,7 +88,7 @@ namespace OneMenu
         private void Import_Click(object sender, RoutedEventArgs e)
         {
             var filePath = OneMenuPlugin.Api?.Dialogs?.SelectFile(
-                "OneMenu backup files|*.zip;*.json;*.png;*.jpg;*.jpeg;*.ico;*.bmp", null);
+                Loc.Get("LOCOneMenuBackupFiles") + "|*.zip;*.json;" + IconLibrary.FilePattern, null);
 
             if (string.IsNullOrEmpty(filePath))
             {
@@ -85,9 +96,9 @@ namespace OneMenu
             }
 
             var confirm = new ConfirmDialog(
-                "Import",
-                "This will add any new tags/genres found, copy any included icons, and replace your current OneMenu menu setup if a config is included. Continue?",
-                "Import")
+                Loc.Get("LOCOneMenuBackupImportTitle"),
+                Loc.Get("LOCOneMenuBackupImportMessage"),
+                Loc.Get("LOCOneMenuBackupImportConfirm"))
             {
                 Owner = this
             };
@@ -102,11 +113,6 @@ namespace OneMenu
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
-        private void SaveAndClose_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }

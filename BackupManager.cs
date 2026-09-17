@@ -46,7 +46,7 @@ namespace OneMenu
             var api = OneMenuPlugin.Api;
             if (api?.Database == null)
             {
-                return new BackupResult { Success = false, Message = "Playnite API is not available." };
+                return new BackupResult { Success = false, Message = Loc.Get("LOCOneMenuBackupNoApi") };
             }
 
             var tempFolder = Path.Combine(Path.GetTempPath(), "OneMenuExport_" + Guid.NewGuid().ToString("N"));
@@ -125,7 +125,7 @@ namespace OneMenu
 
                 if (writtenFiles.Count == 0)
                 {
-                    return new BackupResult { Success = false, Message = "Nothing was selected to export, or there's nothing to export for what you selected." };
+                    return new BackupResult { Success = false, Message = Loc.Get("LOCOneMenuBackupNothingToExport") };
                 }
 
                 string finalPath;
@@ -147,11 +147,11 @@ namespace OneMenu
                     ZipFile.CreateFromDirectory(tempFolder, finalPath, CompressionLevel.Optimal, false);
                 }
 
-                return new BackupResult { Success = true, Message = "Exported to: " + finalPath };
+                return new BackupResult { Success = true, Message = Loc.Format("LOCOneMenuBackupExported", finalPath) };
             }
             catch (Exception ex)
             {
-                return new BackupResult { Success = false, Message = "Export failed: " + ex.Message };
+                return new BackupResult { Success = false, Message = Loc.Format("LOCOneMenuBackupExportFailed", ex.Message) };
             }
             finally
             {
@@ -164,7 +164,7 @@ namespace OneMenu
             var api = OneMenuPlugin.Api;
             if (api?.Database == null)
             {
-                return new BackupResult { Success = false, Message = "Playnite API is not available." };
+                return new BackupResult { Success = false, Message = Loc.Get("LOCOneMenuBackupNoApi") };
             }
 
             var tempFolder = Path.Combine(Path.GetTempPath(), "OneMenuImport_" + Guid.NewGuid().ToString("N"));
@@ -198,15 +198,16 @@ namespace OneMenu
                     if (probe.Kind == "OneMenuTags")
                     {
                         var tagsExport = Serialization.FromJson<TagsExport>(json);
-                        foreach (var name in tagsExport.Names ?? new List<string>())
+                        var existingTags = new HashSet<string>(api.Database.Tags.Select(t => t.Name ?? string.Empty), StringComparer.OrdinalIgnoreCase);
+                        using (api.Database.BufferedUpdate())
                         {
-                            if (string.IsNullOrWhiteSpace(name))
+                            foreach (var name in tagsExport.Names ?? new List<string>())
                             {
-                                continue;
-                            }
+                                if (string.IsNullOrWhiteSpace(name) || !existingTags.Add(name))
+                                {
+                                    continue;
+                                }
 
-                            if (!api.Database.Tags.Any(t => string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase)))
-                            {
                                 api.Database.Tags.Add(new Tag { Name = name });
                                 tagsAdded++;
                             }
@@ -215,15 +216,16 @@ namespace OneMenu
                     else if (probe.Kind == "OneMenuGenres")
                     {
                         var genresExport = Serialization.FromJson<GenresExport>(json);
-                        foreach (var name in genresExport.Names ?? new List<string>())
+                        var existingGenres = new HashSet<string>(api.Database.Genres.Select(g => g.Name ?? string.Empty), StringComparer.OrdinalIgnoreCase);
+                        using (api.Database.BufferedUpdate())
                         {
-                            if (string.IsNullOrWhiteSpace(name))
+                            foreach (var name in genresExport.Names ?? new List<string>())
                             {
-                                continue;
-                            }
+                                if (string.IsNullOrWhiteSpace(name) || !existingGenres.Add(name))
+                                {
+                                    continue;
+                                }
 
-                            if (!api.Database.Genres.Any(g => string.Equals(g.Name, name, StringComparison.OrdinalIgnoreCase)))
-                            {
                                 api.Database.Genres.Add(new Genre { Name = name });
                                 genresAdded++;
                             }
@@ -236,10 +238,9 @@ namespace OneMenu
                         RelinkIconPaths(importedRoots);
                         settings.RootNodes = importedRoots;
 
-                        if (!string.IsNullOrEmpty(configExport.MainIconFileName))
-                        {
-                            settings.MainIconPath = Path.Combine(OneMenuPlugin.PluginDataPath, "icons", configExport.MainIconFileName);
-                        }
+                        settings.MainIconPath = !string.IsNullOrEmpty(configExport.MainIconFileName)
+                            ? Path.Combine(IconLibrary.FolderPath, configExport.MainIconFileName)
+                            : null;
 
                         configImported = true;
                     }
@@ -249,54 +250,55 @@ namespace OneMenu
                 var extractedIconsFolder = Path.Combine(tempFolder, "icons");
                 if (Directory.Exists(extractedIconsFolder))
                 {
-                    var dataIconsFolder = Path.Combine(OneMenuPlugin.PluginDataPath, "icons");
+                    var dataIconsFolder = IconLibrary.FolderPath;
                     Directory.CreateDirectory(dataIconsFolder);
                     foreach (var iconFile in Directory.GetFiles(extractedIconsFolder))
                     {
                         var destPath = Path.Combine(dataIconsFolder, Path.GetFileName(iconFile));
-                        File.Copy(iconFile, destPath, true);
+                        if (!IconLibrary.FilesAreEqual(iconFile, destPath))
+                        {
+                            File.Copy(iconFile, destPath, true);
+                        }
+
                         iconsCount++;
                     }
                 }
-                else if (IsImageFile(sourceFilePath))
+                else if (IconLibrary.IsImageFile(sourceFilePath))
                 {
-                    var dataIconsFolder = Path.Combine(OneMenuPlugin.PluginDataPath, "icons");
-                    Directory.CreateDirectory(dataIconsFolder);
-                    var destPath = Path.Combine(dataIconsFolder, Path.GetFileName(sourceFilePath));
-                    File.Copy(sourceFilePath, destPath, true);
+                    IconLibrary.Import(sourceFilePath);
                     iconsCount++;
                 }
 
                 if (tagsAdded > 0)
                 {
-                    summary.Add($"{tagsAdded} new tag(s)");
+                    summary.Add(Loc.Format("LOCOneMenuBackupSummaryTags", tagsAdded));
                 }
 
                 if (genresAdded > 0)
                 {
-                    summary.Add($"{genresAdded} new genre(s)");
+                    summary.Add(Loc.Format("LOCOneMenuBackupSummaryGenres", genresAdded));
                 }
 
                 if (configImported)
                 {
-                    summary.Add("OneMenu config");
+                    summary.Add(Loc.Get("LOCOneMenuBackupSummaryConfig"));
                 }
 
                 if (iconsCount > 0)
                 {
-                    summary.Add($"{iconsCount} icon(s)");
+                    summary.Add(Loc.Format("LOCOneMenuBackupSummaryIcons", iconsCount));
                 }
 
                 if (summary.Count == 0)
                 {
-                    return new BackupResult { Success = false, Message = "Nothing recognizable was found to import in that file." };
+                    return new BackupResult { Success = false, Message = Loc.Get("LOCOneMenuBackupNothingFound") };
                 }
 
-                return new BackupResult { Success = true, Message = "Imported: " + string.Join(", ", summary) };
+                return new BackupResult { Success = true, Message = Loc.Format("LOCOneMenuBackupImported", string.Join(", ", summary)) };
             }
             catch (Exception ex)
             {
-                return new BackupResult { Success = false, Message = "Import failed: " + ex.Message };
+                return new BackupResult { Success = false, Message = Loc.Format("LOCOneMenuBackupImportFailed", ex.Message) };
             }
             finally
             {
@@ -336,17 +338,11 @@ namespace OneMenu
             {
                 if (!string.IsNullOrEmpty(node.IconPath))
                 {
-                    node.IconPath = Path.Combine(OneMenuPlugin.PluginDataPath, "icons", node.IconPath);
+                    node.IconPath = Path.Combine(IconLibrary.FolderPath, node.IconPath);
                 }
 
                 RelinkIconPaths(node.Children);
             }
-        }
-
-        private static bool IsImageFile(string path)
-        {
-            var ext = Path.GetExtension(path)?.ToLowerInvariant();
-            return ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".ico" || ext == ".bmp";
         }
 
         private static void TryDeleteFolder(string folder)

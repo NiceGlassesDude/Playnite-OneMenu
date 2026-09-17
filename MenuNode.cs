@@ -24,6 +24,13 @@ namespace OneMenu
         MuchBigger
     }
 
+    public enum TagBrowserButtonPlacement
+    {
+        FlyoutMenu,
+        TopPanel,
+        Both
+    }
+
     public class MenuNode : LocalObservableObject
     {
         private Guid id = Guid.NewGuid();
@@ -58,6 +65,9 @@ namespace OneMenu
 
         private bool isHidden;
         public bool IsHidden { get => isHidden; set => SetValue(ref isHidden, value); }
+
+        private bool showInSidebar;
+        public bool ShowInSidebar { get => showInSidebar; set => SetValue(ref showInSidebar, value); }
 
         private ObservableCollection<MenuNode> children = new ObservableCollection<MenuNode>();
         public ObservableCollection<MenuNode> Children
@@ -121,7 +131,8 @@ namespace OneMenu
                 ActionType = ActionType,
                 FilterPresetId = FilterPresetId,
                 TargetPath = TargetPath,
-                IsHidden = IsHidden
+                IsHidden = IsHidden,
+                ShowInSidebar = ShowInSidebar
             };
 
             foreach (var child in Children)

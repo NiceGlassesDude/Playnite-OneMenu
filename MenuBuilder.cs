@@ -3,7 +3,6 @@ using System;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Media.Imaging;
 
 namespace OneMenu
 {
@@ -21,7 +20,7 @@ namespace OneMenu
 
             foreach (var node in settings.RootNodes)
             {
-                if (node.IsHidden)
+                if (node.IsHidden || node.ShowInSidebar)
                 {
                     continue;
                 }
@@ -33,13 +32,16 @@ namespace OneMenu
                 }
             }
 
-            if (settings.TagSearchEnabled)
+            if (settings.ShowTagBrowserInFlyout)
             {
-                menu.Items.Add(new Separator());
+                if (menu.Items.Count > 0)
+                {
+                    menu.Items.Add(new Separator());
+                }
 
                 var searchItem = new MenuItem
                 {
-                    Header = "Tag Browser",
+                    Header = Loc.Get("LOCOneMenuTagBrowser"),
                     Icon = new TextBlock
                     {
                         Text = "\xE721",
@@ -49,46 +51,50 @@ namespace OneMenu
                         VerticalAlignment = System.Windows.VerticalAlignment.Center
                     }
                 };
-                searchItem.Click += (s, e) =>
-                {
-                    GetSizeForPreset(settings.TagBrowserSize, out var width, out var height);
-                    var window = new TagSearchWindow
-                    {
-                        Owner = System.Windows.Application.Current?.MainWindow,
-                        Opacity = settings.TagBrowserOpacity,
-                        Width = width,
-                        Height = height
-                    };
-                    window.Show();
-                };
+                searchItem.Click += (s, e) => WindowLauncher.OpenTagBrowser(settings);
                 menu.Items.Add(searchItem);
             }
 
             return menu;
         }
 
-        private static void GetSizeForPreset(TagBrowserSizePreset preset, out double width, out double height)
+        public static void ActivateNode(MenuNode node)
         {
-            switch (preset)
+            if (node == null)
             {
-                case TagBrowserSizePreset.Bigger:
-                    width = 960;
-                    height = 720;
-                    break;
-                case TagBrowserSizePreset.MuchBigger:
-                    width = 1200;
-                    height = 880;
-                    break;
-                default:
-                    width = 760;
-                    height = 560;
-                    break;
+                return;
+            }
+
+            if (!node.IsCategory)
+            {
+                RunAction(node);
+                return;
+            }
+
+            var menu = new ContextMenu
+            {
+                Placement = PlacementMode.MousePoint,
+                PlacementTarget = System.Windows.Application.Current?.MainWindow
+            };
+
+            foreach (var child in node.Children)
+            {
+                var childItem = BuildMenuItem(child);
+                if (childItem != null)
+                {
+                    menu.Items.Add(childItem);
+                }
+            }
+
+            if (menu.Items.Count > 0)
+            {
+                menu.IsOpen = true;
             }
         }
 
         private static MenuItem BuildMenuItem(MenuNode node)
         {
-            if (node.IsHidden)
+            if (node.IsHidden || node.ShowInSidebar)
             {
                 return null;
             }
@@ -100,18 +106,19 @@ namespace OneMenu
 
             if (node.ShowIcon && !string.IsNullOrEmpty(node.IconPath))
             {
-                try
+                var source = ImageHelper.LoadFromFile(node.IconPath, 48);
+                if (source != null)
                 {
                     item.Icon = new Image
                     {
-                        Source = new BitmapImage(new Uri(node.IconPath)),
+                        Source = source,
                         Width = 20,
                         Height = 20
                     };
                 }
-                catch (Exception ex)
+                else
                 {
-                    logger.Warn(ex, $"Quick Launcher: couldn't load icon for '{node.Title}' from '{node.IconPath}'.");
+                    logger.Warn($"OneMenu: couldn't load icon for '{node.Title}' from '{node.IconPath}'.");
                 }
             }
 
@@ -120,11 +127,6 @@ namespace OneMenu
                 var childCount = 0;
                 foreach (var child in node.Children)
                 {
-                    if (child.IsHidden)
-                    {
-                        continue;
-                    }
-
                     var childItem = BuildMenuItem(child);
                     if (childItem != null)
                     {
@@ -151,7 +153,7 @@ namespace OneMenu
             var api = OneMenuPlugin.Api;
             if (api == null)
             {
-                logger.Error("Quick Launcher: Playnite API reference is null.");
+                logger.Error("OneMenu: Playnite API reference is null.");
                 return;
             }
 
@@ -159,7 +161,7 @@ namespace OneMenu
             {
                 if (string.IsNullOrEmpty(node.TargetPath))
                 {
-                    logger.Warn($"Quick Launcher: '{node.Title}' has no file or folder assigned.");
+                    logger.Warn($"OneMenu: '{node.Title}' has no file or folder assigned.");
                     return;
                 }
 
@@ -169,8 +171,8 @@ namespace OneMenu
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, $"Quick Launcher: couldn't open '{node.TargetPath}' for '{node.Title}'.");
-                    api.Dialogs.ShowErrorMessage($"Couldn't open:\n{node.TargetPath}", "OneMenu");
+                    logger.Error(ex, $"OneMenu: couldn't open '{node.TargetPath}' for '{node.Title}'.");
+                    api.Dialogs.ShowErrorMessage(Loc.Format("LOCOneMenuCouldNotOpen", node.TargetPath), "OneMenu");
                 }
 
                 return;
@@ -178,7 +180,7 @@ namespace OneMenu
 
             if (node.FilterPresetId == null)
             {
-                logger.Warn($"Quick Launcher: '{node.Title}' has no filter preset assigned.");
+                logger.Warn($"OneMenu: '{node.Title}' has no filter preset assigned.");
                 return;
             }
 

@@ -5,42 +5,93 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <RadioButton x:Name="TagsRadio" Content="Tags" GroupName="TagGenreMode"
+            <RadioButton x:Name="TagsRadio" Content="{DynamicResource LOCOneMenuTags}" GroupName="TagGenreMode"
                          Checked="Mode_Changed" Margin="0,0,20,0" VerticalAlignment="Center" />
-            <RadioButton x:Name="GenresRadio" Content="Genres" GroupName="TagGenreMode"
+            <RadioButton x:Name="GenresRadio" Content="{DynamicResource LOCOneMenuGenres}" GroupName="TagGenreMode"
                          Checked="Mode_Changed" VerticalAlignment="Center" />
         </StackPanel>
 
-        <TextBox x:Name="SearchBox" Grid.Row="1" Margin="0,0,0,10" Padding="4"
+        <TextBox x:Name="SearchBox" Grid.Row="1" Margin="0,0,0,6" Padding="4"
                  TextChanged="SearchBox_TextChanged" />
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="2" Height="14" Margin="0,0,0,4">
+            <Grid x:Name="BusyPanel" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{DynamicResource LOCOneMenuIndexingLibrary}" Opacity="0.7" FontSize="11"
+                           Margin="0,0,10,0" VerticalAlignment="Center" />
+                <ProgressBar Grid.Column="1" IsIndeterminate="True" Height="4" VerticalAlignment="Center" />
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="18" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="Tags &amp; Genres" FontWeight="Bold" Margin="0,0,0,2" />
-                <TextBlock Text="Double-click a tag or genre to edit or delete it globally" Opacity="0.6" FontSize="11" Margin="0,0,0,4" />
-                <ListBox x:Name="MasterList" Height="480" DisplayMemberPath="DisplayText"
-             SelectionChanged="MasterList_SelectionChanged"
-             MouseDoubleClick="MasterList_MouseDoubleClick" />
-            </StackPanel>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="MasterHeaderText" Grid.Row="0" FontWeight="Bold" Margin="0,0,0,2" />
+                <TextBlock Grid.Row="1" Text="{DynamicResource LOCOneMenuManagerMasterHint}" TextWrapping="Wrap"
+                           Opacity="0.6" FontSize="11" Margin="0,0,0,4" />
+                <ListBox x:Name="MasterList" Grid.Row="2" DisplayMemberPath="DisplayText"
+                         SelectionMode="Extended" AllowDrop="True"
+                         SelectionChanged="MasterList_SelectionChanged"
+                         MouseDoubleClick="MasterList_MouseDoubleClick"
+                         PreviewMouseLeftButtonDown="MasterList_PreviewMouseLeftButtonDown"
+                         PreviewMouseLeftButtonUp="MasterList_PreviewMouseLeftButtonUp"
+                         PreviewMouseMove="MasterList_PreviewMouseMove"
+                         DragOver="MasterList_DragOver"
+                         Drop="MasterList_Drop" />
+                <WrapPanel Grid.Row="3" Margin="0,8,0,0">
+                    <Button x:Name="RenameButton" Content="{DynamicResource LOCOneMenuManagerRename}" Padding="12,6" Margin="0,0,6,4"
+                            Click="RenameButton_Click" IsEnabled="False" />
+                    <Button x:Name="MergeButton" Content="{DynamicResource LOCOneMenuManagerMerge}" Padding="12,6" Margin="0,0,6,4"
+                            ToolTip="{DynamicResource LOCOneMenuManagerMergeTooltip}"
+                            Click="MergeButton_Click" IsEnabled="False" />
+                    <Button x:Name="RemoveButton" Content="{DynamicResource LOCOneMenuManagerRemoveSelected}" Padding="12,6" Margin="0,0,0,4"
+                            Click="RemoveButton_Click" IsEnabled="False" />
+                </WrapPanel>
+            </Grid>
 
             <Border Grid.Column="1" Width="1" HorizontalAlignment="Center" Background="#33FFFFFF" Margin="0,20,0,0" />
 
-            <StackPanel Grid.Column="2">
-                <TextBlock x:Name="SelectedHeaderText" FontWeight="Bold" Margin="0,0,0,2" />
-                <TextBlock Text="Double-click a game to remove selected tag or genre from it" Opacity="0.6" FontSize="11" Margin="0,0,0,4" />
-                <ListBox x:Name="GamesList" Height="480" DisplayMemberPath="Name"
-             MouseDoubleClick="GamesList_MouseDoubleClick" />
-            </StackPanel>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="SelectedHeaderText" Grid.Row="0" FontWeight="Bold" Margin="0,0,0,2" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="1" Text="{DynamicResource LOCOneMenuManagerGamesHint}" TextWrapping="Wrap"
+                           Opacity="0.6" FontSize="11" Margin="0,0,0,4" />
+                <ListBox x:Name="GamesList" Grid.Row="2" DisplayMemberPath="Name"
+                         SelectionMode="Extended"
+                         SelectionChanged="GamesList_SelectionChanged"
+                         MouseDoubleClick="GamesList_MouseDoubleClick" />
+                <WrapPanel Grid.Row="3" Margin="0,8,0,0">
+                    <Button x:Name="AddToGamesButton" Content="{DynamicResource LOCOneMenuManagerAddToGames}" Padding="12,6" Margin="0,0,6,4"
+                            ToolTip="{DynamicResource LOCOneMenuManagerAddToGamesTooltip}"
+                            Click="AddToGamesButton_Click" IsEnabled="False" />
+                    <Button x:Name="RemoveFromGamesButton" Content="{DynamicResource LOCOneMenuManagerRemoveFromGames}" Padding="12,6" Margin="0,0,0,4"
+                            Click="RemoveFromGamesButton_Click" IsEnabled="False" />
+                </WrapPanel>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

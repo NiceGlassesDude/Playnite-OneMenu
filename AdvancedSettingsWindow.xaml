@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:OneMenu"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        Title="Advanced Settings" Height="790" Width="1050"
+        Title="{DynamicResource LOCOneMenuAdvTitle}" Height="790" Width="1050"
+        MinHeight="520" MinWidth="820"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource NormalBrush}"
         Foreground="{DynamicResource TextBrush}">
@@ -22,7 +23,7 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Background="{DynamicResource NormalBrushDark}">
-            <TextBlock Text="Advanced Settings" VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="Bold" />
+            <TextBlock Text="{DynamicResource LOCOneMenuAdvTitle}" VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="Bold" />
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
                         shell:WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button Content="✕" Width="40" Click="Close_Click" Background="Transparent" BorderThickness="0"
@@ -34,7 +35,7 @@
 
         <Grid Grid.Row="2" Margin="16">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="170" />
+                <ColumnDefinition Width="190" />
                 <ColumnDefinition Width="18" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -58,25 +59,37 @@
                 <ListBoxItem>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center" />
-                        <TextBlock Text="Tag Browser" VerticalAlignment="Center" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuTagBrowser}" VerticalAlignment="Center" />
                     </StackPanel>
                 </ListBoxItem>
                 <ListBoxItem>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center" />
-                        <TextBlock Text="Theme" VerticalAlignment="Center" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuAdvTheme}" VerticalAlignment="Center" />
                     </StackPanel>
                 </ListBoxItem>
                 <ListBoxItem>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE8EC;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center" />
-                        <TextBlock Text="T&amp;G Manager" VerticalAlignment="Center" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuAdvManagerNav}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ListBoxItem>
+                <ListBoxItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE771;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuAdvUiSettings}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ListBoxItem>
+                <ListBoxItem>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE8B9;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuAdvManageIcons}" VerticalAlignment="Center" />
                     </StackPanel>
                 </ListBoxItem>
                 <ListBoxItem>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center" />
-                        <TextBlock Text="Import &amp; Export" VerticalAlignment="Center" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuAdvImportExport}" VerticalAlignment="Center" />
                     </StackPanel>
                 </ListBoxItem>
             </ListBox>
@@ -87,67 +100,110 @@
                     CornerRadius="4" Padding="20">
                 <Grid>
                     <StackPanel x:Name="TagBrowserPanel">
-                        <TextBlock Text="Window Transparency" FontWeight="Bold" FontSize="13" Margin="0,0,0,8" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuAdvTransparency}" FontWeight="Bold" FontSize="13" Margin="0,0,0,8" />
                         <Slider x:Name="TransparencySlider" Minimum="0" Maximum="70"
                                 Value="{Binding TagBrowserTransparencyPercent}" Margin="0,0,0,6" />
-                        <TextBlock Text="{Binding TagBrowserTransparencyPercent, StringFormat={}{0:0}% transparent}"
+                        <TextBlock Text="{Binding TagBrowserTransparencyText}"
                                    Opacity="0.7" Margin="0,0,0,14" />
 
                         <Border Width="240" Height="64" CornerRadius="4" Margin="0,0,0,26"
                                 HorizontalAlignment="Left"
                                 Background="{DynamicResource GlyphBrush}"
                                 Opacity="{Binding TagBrowserOpacity}">
-                            <TextBlock Text="Preview" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            <TextBlock Text="{DynamicResource LOCOneMenuAdvPreview}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                        Foreground="White" FontWeight="Bold" />
                         </Border>
 
-                        <TextBlock Text="Window Size" FontWeight="Bold" FontSize="13" Margin="0,0,0,8" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuAdvWindowSize}" FontWeight="Bold" FontSize="13" Margin="0,0,0,8" />
                         <ComboBox ItemsSource="{Binding TagBrowserSizeOptions}" DisplayMemberPath="DisplayText"
                                   SelectedValuePath="Value" SelectedValue="{Binding TagBrowserSize}"
-                                  HorizontalAlignment="Left" MinWidth="220" />
+                                  HorizontalAlignment="Left" MinWidth="220" Margin="0,0,0,26" />
+
+                        <TextBlock TextWrapping="Wrap" Opacity="0.6" FontSize="11"
+                                   Text="{DynamicResource LOCOneMenuAdvTagBrowserThemeMoved}" />
                     </StackPanel>
 
                     <StackPanel x:Name="ThemePanel" Visibility="Collapsed">
-                        <TextBlock Text="Theme" FontWeight="Bold" FontSize="13" Margin="0,0,0,10" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuAdvThemeSectionAdvanced}" FontWeight="Bold" FontSize="13" Margin="0,0,0,10" />
                         <CheckBox x:Name="FollowPlayniteThemeCheckBox" IsChecked="{Binding FollowPlayniteTheme}"
                                   Click="FollowPlayniteThemeCheckBox_Click">
-                            <TextBlock Text="Use custom theme instead of OneMenu's default" TextWrapping="Wrap" />
+                            <TextBlock Text="{DynamicResource LOCOneMenuAdvFollowTheme}" TextWrapping="Wrap" />
                         </CheckBox>
                         <TextBlock TextWrapping="Wrap" Opacity="0.7" Margin="0,6,0,0"
-                                   Text="Advanced Settings uses OneMenu's own color scheme by default. Check this to use your own theme." />
+                                   Text="{DynamicResource LOCOneMenuAdvFollowThemeHint}" />
+
+                        <Border Height="1" Background="#33FFFFFF" Margin="0,22,0,22" />
+
+                        <TextBlock Text="{DynamicResource LOCOneMenuAdvThemeSectionTagBrowser}" FontWeight="Bold" FontSize="13" Margin="0,0,0,10" />
+                        <CheckBox IsChecked="{Binding TagBrowserUseOneMenuTheme}">
+                            <TextBlock Text="{DynamicResource LOCOneMenuAdvTagBrowserTheme}" TextWrapping="Wrap" />
+                        </CheckBox>
+                        <TextBlock TextWrapping="Wrap" Opacity="0.7" Margin="0,6,0,0"
+                                   Text="{DynamicResource LOCOneMenuAdvTagBrowserThemeHint}" />
                     </StackPanel>
 
-                    <StackPanel x:Name="TagsGenresPanel" Visibility="Collapsed">
-                        <TextBlock Text="Tags and Genre Manager" FontWeight="Bold" FontSize="13" Margin="0,0,0,10" />
-                        <local:TagGenreManagerView />
+                    <Grid x:Name="TagsGenresPanel" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="{DynamicResource LOCOneMenuTagGenreManager}" FontWeight="Bold" FontSize="13" Margin="0,0,0,10" />
+                        <local:TagGenreManagerView Grid.Row="1" />
+                    </Grid>
+
+                    <StackPanel x:Name="UiSettingsPanel" Visibility="Collapsed">
+                        <TextBlock Text="{DynamicResource LOCOneMenuUiTagBrowserButton}" FontWeight="Bold" FontSize="13" Margin="0,0,0,8" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuUiTagBrowserPlacement}" Opacity="0.8" Margin="0,0,0,6" />
+                        <ComboBox ItemsSource="{Binding TagBrowserPlacementOptions}" DisplayMemberPath="DisplayText"
+                                  SelectedValuePath="Value" SelectedValue="{Binding TagBrowserPlacement}"
+                                  HorizontalAlignment="Left" MinWidth="280" />
+                        <TextBlock TextWrapping="Wrap" Opacity="0.7" Margin="0,6,0,26"
+                                   Text="{DynamicResource LOCOneMenuUiTagBrowserPlacementHint}" />
+
+                        <TextBlock Text="{DynamicResource LOCOneMenuUiManagerButton}" FontWeight="Bold" FontSize="13" Margin="0,0,0,8" />
+                        <CheckBox IsChecked="{Binding TagGenreManagerTopPanel}">
+                            <TextBlock Text="{DynamicResource LOCOneMenuUiManagerTopPanel}" TextWrapping="Wrap" />
+                        </CheckBox>
+
+                        <TextBlock TextWrapping="Wrap" Opacity="0.6" FontSize="11" Margin="0,26,0,0"
+                                   Text="{DynamicResource LOCOneMenuUiApplyHint}" />
                     </StackPanel>
+
+                    <Grid x:Name="ManageIconsPanel" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="{DynamicResource LOCOneMenuAdvManageIcons}" FontWeight="Bold" FontSize="13" Margin="0,0,0,10" />
+                        <local:IconLibraryView x:Name="ManageIconsView" Grid.Row="1" />
+                    </Grid>
 
                     <StackPanel x:Name="ImportExportPanel" Visibility="Collapsed">
-                        <TextBlock Text="Import &amp; Export" FontWeight="Bold" FontSize="13" Margin="0,0,0,10" />
-                        <TextBlock Text="What to include" Opacity="0.8" Margin="0,0,0,8" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuAdvImportExport}" FontWeight="Bold" FontSize="13" Margin="0,0,0,10" />
+                        <TextBlock Text="{DynamicResource LOCOneMenuBackupInclude}" Opacity="0.8" Margin="0,0,0,8" />
 
                         <CheckBox x:Name="ExportTagsCheckBox" IsChecked="True" Margin="0,0,0,8">
-                            <TextBlock Text="Tags" />
+                            <TextBlock Text="{DynamicResource LOCOneMenuTags}" />
                         </CheckBox>
                         <CheckBox x:Name="ExportGenresCheckBox" IsChecked="True" Margin="0,0,0,8">
-                            <TextBlock Text="Genres" />
+                            <TextBlock Text="{DynamicResource LOCOneMenuGenres}" />
                         </CheckBox>
                         <CheckBox x:Name="ExportConfigCheckBox" IsChecked="True" Margin="0,0,0,8">
-                            <TextBlock Text="Flyout Config (Main and Sub- Categories)" TextWrapping="Wrap" />
+                            <TextBlock Text="{DynamicResource LOCOneMenuBackupConfig}" TextWrapping="Wrap" />
                         </CheckBox>
                         <CheckBox x:Name="ExportIconsCheckBox" IsChecked="True" Margin="0,0,0,16">
-                            <TextBlock Text="Icons" />
+                            <TextBlock Text="{DynamicResource LOCOneMenuBackupIcons}" />
                         </CheckBox>
 
                         <StackPanel Orientation="Horizontal">
-                            <Button Content="Export..." Padding="14,7" Margin="0,0,10,0" Click="Export_Click" />
-                            <Button Content="Import..." Padding="14,7" Click="Import_Click" />
+                            <Button Content="{DynamicResource LOCOneMenuBackupExport}" Padding="14,7" Margin="0,0,10,0" Click="Export_Click" />
+                            <Button Content="{DynamicResource LOCOneMenuBackupImport}" Padding="14,7" Click="Import_Click" />
                         </StackPanel>
 
                         <TextBlock x:Name="ImportExportStatusText" TextWrapping="Wrap" Opacity="0.8" Margin="0,16,0,0" />
 
                         <TextBlock TextWrapping="Wrap" Opacity="0.6" FontSize="11" Margin="0,20,0,0"
-                                   Text="Multiple exports bundle into a single zip. Tag and genre imports add missing names without linking them to games. Config imports overwrite your menu and apply upon saving" />
+                                   Text="{DynamicResource LOCOneMenuBackupHint}" />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -156,7 +212,7 @@
         <Border Grid.Row="3" Background="#33FFFFFF" />
 
         <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,12,16,16">
-            <Button Content="Close" Padding="16,8" Click="SaveAndClose_Click" />
+            <Button Content="{DynamicResource LOCOneMenuClose}" Padding="16,8" Click="Close_Click" />
         </StackPanel>
     </Grid>
     </Border>
