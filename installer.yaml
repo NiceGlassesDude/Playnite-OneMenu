@@ -1,5 +1,24 @@
 AddonId: 'OneMenu'
 Packages:
+  - Version: '1.5.3'
+    RequiredApiVersion: '6.2.0'
+    ReleaseDate: '2026-09-18'
+    PackageUrl: 'https://github.com/NiceGlassesDude/Playnite-OneMenu/releases/download/1.5.3/OneMenu_v1_5_3.pext'
+    Changelog:
+      - "Added left side buttons: show any menu entry as its own icon button under the OneMenu button"
+      - "Added optional top panel buttons for the Tag Browser and the T&G Manager (new UI Settings page)"
+      - "Added icon library with a Manage Icons page and an icon picker"
+      - "Added merge and bulk edit to the Tags and Genre Manager, including a duplicate check on rename"
+      - "Added a welcome guide on first start"
+      - "Added localization: English, German, French, Spanish, Italian, Portuguese (Brazil), Russian, Chinese (Simplified)"
+      - "Added Tag Browser theme option and a reorganized Theme page"
+      - "Much faster Tag Browser and T&G Manager on large libraries"
+      - "Fixed renaming a tag or genre could create a second entry with the same name"
+      - "Fixed settings that was blocked when an icon file was missing"
+      - "Fixed flyout menu no longer opens as an empty box when it has no entries"
+      - "Fixed double-clicking the scrollbar of a list in the T&G Manager no longer opens the rename dialog"
+      - "Fixed importing a config without a main icon now resets the main icon instead of keeping the old one"
+      
   - Version: '1.4.4'
     RequiredApiVersion: '6.2.0'
     ReleaseDate: '2026-08-03'
