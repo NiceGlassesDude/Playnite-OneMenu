@@ -69,6 +69,9 @@ namespace OneMenu
         private bool showInSidebar;
         public bool ShowInSidebar { get => showInSidebar; set => SetValue(ref showInSidebar, value); }
 
+        private int sidebarPosition;
+        public int SidebarPosition { get => sidebarPosition; set => SetValue(ref sidebarPosition, value); }
+
         private ObservableCollection<MenuNode> children = new ObservableCollection<MenuNode>();
         public ObservableCollection<MenuNode> Children
         {
@@ -132,7 +135,8 @@ namespace OneMenu
                 FilterPresetId = FilterPresetId,
                 TargetPath = TargetPath,
                 IsHidden = IsHidden,
-                ShowInSidebar = ShowInSidebar
+                ShowInSidebar = ShowInSidebar,
+                SidebarPosition = SidebarPosition
             };
 
             foreach (var child in Children)
